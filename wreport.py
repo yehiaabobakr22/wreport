@@ -6,9 +6,9 @@ from google.oauth2.service_account import Credentials
 from datetime import datetime
 import json
 
-st.title("wreport - Weekly Sheet Updater")
+st.title("TLs Weekly Sheet Updater")
 
-uploaded_file = st.file_uploader("Upload your Google Service Account JSON", type="json")
+uploaded_file = st.file_uploader("Upload the JSON File", type="json")
 
 if uploaded_file:
     SERVICE_ACCOUNT_CREDS = json.load(uploaded_file)
@@ -21,7 +21,7 @@ if uploaded_file:
 
     start_date = st.date_input("Start Date")
     end_date = st.date_input("End Date")
-    weekly_over = st.text_input("Weekly Over Limit")
+    weekly_over = st.text_input("Overtarget Limit")
 
     if st.button("Update Sheets"):
         try:
