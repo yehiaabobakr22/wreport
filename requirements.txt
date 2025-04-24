@@ -1,0 +1,5 @@
+streamlit
+gspread
+pandas
+sqlalchemy
+psycopg2-binary
