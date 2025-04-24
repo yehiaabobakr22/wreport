@@ -45,10 +45,10 @@ if st.button("Update Sheets"):
         ops = create_engine("postgresql://analysis_team:ZvVU9ajncL@ops-management-db.statsbomb.com:5432/ops_management")
         query = f"""
         SELECT case 
-        	when s."name" = 'A`' then 'A'
-        	else s."name"
+            when s."name" = 'A`' then 'A'
+            else s."name"
         end as squad,
-                       SUM(ssm.power) AS power
+                    SUM(ssm.power) AS power
         FROM users u
         LEFT JOIN squads_shifts_members ssm ON u.id = ssm.user_id
         LEFT JOIN squads_shifts ss ON ssm.squad_shift_id = ss.id
