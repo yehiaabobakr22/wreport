@@ -11,6 +11,7 @@ st.title("TLs Weekly Sheet Updater")
 uploaded_file = st.file_uploader("Upload the JSON File", type="json")
 
 if uploaded_file:
+    # تحميل بيانات ملف الـ JSON
     SERVICE_ACCOUNT_CREDS = json.load(uploaded_file)
     SCOPES = [
         "https://www.googleapis.com/auth/spreadsheets",
@@ -19,18 +20,22 @@ if uploaded_file:
     credentials = Credentials.from_service_account_info(SERVICE_ACCOUNT_CREDS, scopes=SCOPES)
     gc = gspread.authorize(credentials)
 
+    # إدخال التاريخ
     start_date = st.date_input("Start Date")
     end_date = st.date_input("End Date")
     weekly_over = st.text_input("Overtarget Limit")
 
     if st.button("Update Sheets"):
         try:
+            # الوصول إلى جوجل شيت
             sh = gc.open_by_key('1QOtyGgZYENiC-o4pnTZi8UZfxunZyNLeOpOtJeFSyKY')
             start = start_date.strftime('%Y-%m-%d')
             end = end_date.strftime('%Y-%m-%d')
 
+            # إضافة ورقة جديدة في الشيت
             sheet = sh.add_worksheet(title=f"Power vs. Collected {start_date}", rows=30, cols=10)
 
+            # تنفيذ الاستعلامات من قاعدة البيانات
             ops = create_engine("postgresql://analysis_team:ZvVU9ajncL@ops-management-db.statsbomb.com:5432/ops_management")
             query = f"""
             SELECT case 
@@ -51,6 +56,7 @@ if uploaded_file:
             """
             df = pd.read_sql(query, ops)
 
+            # تحديث البيانات في الشيت
             sheet.batch_clear(["A:B"])
             sheet.update([df.columns.values.tolist()] + df.values.tolist())
             sheet.update_acell('C1', 'Collected')
@@ -68,6 +74,7 @@ if uploaded_file:
             sheet.update_acell('I2', weekly_over)
             sheet.columns_auto_resize(0, 9)
 
+            # إضافة ورقة أخرى
             sheet2 = sh.add_worksheet(title=f"Collected {start_date}", rows=1000, cols=7)
 
             ct = create_engine("postgresql://matchstatus_ro:98aaFHA7sgS66fd@primary-db-prod.cluster-cpnvwmhjbrie.eu-west-2.rds.amazonaws.com:5432/matchstatus")
@@ -98,6 +105,7 @@ if uploaded_file:
             sheet2.update_acell('E2','=ARRAYFORMULA(IFNA(VLOOKUP(A2:A, squads!A:B, 2, FALSE)))')
             sheet2.update_acell('F2','=ARRAYFORMULA(IFERROR(DATEVALUE(IFNA(VLOOKUP(A2:A, squads!A:C, 3, FALSE)))))')
 
+            # تحديث ورقة أخرى
             sheet3 = sh.worksheet('squads')
             query3 = f"""
             SELECT m.id,
