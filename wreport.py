@@ -58,21 +58,24 @@ if uploaded_file:
 
             # تحديث البيانات في الشيت
             sheet.batch_clear(["A:B"])
-            sheet.update([df.columns.values.tolist()] + df.values.tolist())
-            sheet.update_acell('C1', 'Collected')
-            sheet.update_acell('C2', '=ARRAYFORMULA(...)')  # Replace with your full formula
-            sheet.update_acell('D1', 'DIF')
-            sheet.update_acell('D2', '=ARRAYFORMULA(C2:C-B2:B)')
-            sheet.update_acell('E1', 'Over/Deficit %')
-            sheet.update_acell('E2', '=ARRAYFORMULA(IFERROR(D2:D/B2:B))')
-            sheet.update_acell('F1', 'Bonus Multiplier')
-            sheet.update_acell('F2', '=ARRAYFORMULA(...)')  # Replace with your full formula
-            sheet.update_acell('G1', 'Overtarget Limit Status')
-            sheet.update_acell('G2', '=ARRAYFORMULA(IF(D2:D>$I$2,"Above the limit",""))')
-            sheet.update_acell('H1', 'Over/Deficit Reason')
-            sheet.update_acell('I1', start)
-            sheet.update_acell('I2', weekly_over)
-            sheet.columns_auto_resize(0, 9)
+        sheet.update([df.columns.values.tolist()] + df.values.tolist())
+        sheet.update_acell('C1', 'Collected')
+        sheet.update_acell('C2', '=ARRAYFORMULA(COUNTIFS(INDIRECT("\'" & "Collected "&TEXT($I$1,"yyyy-mm-dd") & "\'!$E:$E"), A2:A,'
+                                 'INDIRECT("\'" & "Collected "&TEXT($I$1,"yyyy-mm-dd") & "\'!$F:$F"), ">="&TEXT($I$1,"yyyy-mm-dd"),'
+                                 'INDIRECT("\'" & "Collected "&TEXT($I$1,"yyyy-mm-dd") & "\'!$F:$F"), "<"&TEXT($I$1,"yyyy-mm-dd")+7))')
+        sheet.update_acell('D1', 'DIF')
+        sheet.update_acell('D2', '=ARRAYFORMULA(C2:C-B2:B)')
+        sheet.update_acell('E1', 'Over/Deficit %')
+        sheet.update_acell('E2', '=ARRAYFORMULA(IFERROR(D2:D/B2:B))')
+        sheet.update_acell('F1', 'Bonus Multiplier')
+        sheet.update_acell('F2',
+                           """=ARRAYFORMULA(IF(E2:E="","",IF(E2:E<'Overtarget Guide'!$A$2,0,IF(E2:E>='Overtarget Guide'!$A$5,'Overtarget Guide'!$B$5,IF(E2:E>='Overtarget Guide'!$A$4,'Overtarget Guide'!$B$4,IF(E2:E>='Overtarget Guide'!$A$3,'Overtarget Guide'!$B$3,IF(E2:E>='Overtarget Guide'!$A$2,'Overtarget Guide'!$B$2,"")))))))   """)
+        sheet.update_acell('G1', 'Overtarget Limit Status')
+        sheet.update_acell('G2', '=ARRAYFORMULA(IF(D2:D>$I$2,"Above the limit",""))')
+        sheet.update_acell('H1', 'Over/Deficit Reason')
+        sheet.update_acell('I1', start)
+        sheet.update_acell('I2', weekly_over)
+        sheet.columns_auto_resize(0,9)
 
             # إضافة ورقة أخرى
             sheet2 = sh.add_worksheet(title=f"Collected {start_date}", rows=1000, cols=7)
